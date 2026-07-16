@@ -1,0 +1,22 @@
+﻿municipality,department,hh_public_grid_2024,total_MWh,residential_MWh,general_MWh,industrial_MWh,public_lighting_MWh,other_MWh,method,comparable_reference,notes
+Riberalta,Beni,23121,58560.07,31096.08,17292.26,5195.21,3987.2,989.32,AETN_direct,,SA - ENDE Riberalta (2024)
+Guayaramerín,Beni,9420,30449.33,18367.61,8547.77,2228.95,1243.08,61.93,AETN_minus_Ustarez,,Guayaramerín_TH 30579.82 MWh − Puerto Ustárez 130.49 MWh; correction factor = 0.995733 applied to all categories
+Reyes,Beni,2353,4489.55,2810.71,936.1,236.92,474.05,31.78,AETN_direct,,SIN - ENDE DELBENI (2024)
+Santa Rosa,Beni,1728,4142.59,2594.56,840.77,366.6,224.77,115.89,AETN_direct,,SIN - ENDE DELBENI (2024)
+Exaltación,Beni,292,311.4,194.34,74.63,0.15,20.02,22.26,AETN_trend_estimate,,2024 estimate based on 2018–2022 trend (2023 excluded: partial year post-merger)
+El Sena,Pando,1120,3690.32,2076.35,1072.9,357.81,153.01,30.25,AETN_direct,,SA - ENDE (2024)
+Puerto Gonzalo Moreno,Pando,1385,1079.51,541.83,413.09,0.0,124.58,0.0,AETN_trend_estimate,,2024 estimate based on 2020–2023 trend (2019 excluded as start-up outlier)
+Villa Nueva,Pando,274,542.02,279.24,184.58,39.68,37.13,1.4,AETN_trend_estimate,,2024 estimate based on 2020–2023 trend (2019 excluded as start-up outlier)
+Cobija,Pando,14921,55141.5,29903.61,18859.51,3861.17,2207.66,309.56,ENDE_Cobija_split,Riberalta,ENDE Cobija 70571.36 MWh split; scale=1.459102
+Porvenir,Pando,1800,5011.17,2717.59,1713.92,350.9,200.63,28.13,ENDE_Cobija_split,Reyes,ENDE Cobija 70571.36 MWh split; scale=1.459102
+Puerto Rico,Pando,1344,4701.25,2549.52,1607.92,329.19,188.22,26.39,ENDE_Cobija_split,Santa Rosa,ENDE Cobija 70571.36 MWh split; scale=1.459102
+Filadelfia,Pando,1312,4589.31,2488.82,1569.64,321.36,183.74,25.76,ENDE_Cobija_split,Santa Rosa,ENDE Cobija 70571.36 MWh split; scale=1.459102
+Bella Flor,Pando,569,885.39,480.15,302.82,62.0,35.45,4.97,ENDE_Cobija_split,Exaltación,ENDE Cobija 70571.36 MWh split; scale=1.459102
+Bolpebra,Pando,156,242.74,131.64,83.02,17.0,9.72,1.36,ENDE_Cobija_split,Exaltación,ENDE Cobija 70571.36 MWh split; scale=1.459102
+Ixiamas,La Paz,1470,2804.78,1755.95,584.81,148.01,296.16,19.85,Estimation,Reyes,1470 HH × 1.9080 MWh/HH (rate from Reyes)
+San Lorenzo,Pando,1288,2457.52,1538.54,512.41,129.69,259.49,17.4,Estimation,Riberalta,1288 HH × 1.9080 MWh/HH (rate from Riberalta)
+Santa Rosa del Abuná,Pando,568,605.74,378.03,145.17,0.29,38.94,43.3,Estimation,Exaltación,568 HH × 1.0664 MWh/HH (rate from Exaltación)
+Santos Mercado,Pando,188,200.49,125.12,48.05,0.1,12.89,14.33,Estimation,Exaltación,188 HH × 1.0664 MWh/HH (rate from Exaltación)
+Nueva Esperanza,Pando,71,75.72,47.25,18.15,0.04,4.87,5.41,Estimation,Exaltación,71 HH × 1.0664 MWh/HH (rate from Exaltación)
+Ingavi,Pando,113,120.51,75.21,28.88,0.06,7.75,8.61,Estimation,Exaltación,113 HH × 1.0664 MWh/HH (rate from Exaltación)
+San Pedro,Pando,2,2.13,1.33,0.51,0.0,0.14,0.15,Estimation,Exaltación,2 HH × 1.0664 MWh/HH (rate from Exaltación)

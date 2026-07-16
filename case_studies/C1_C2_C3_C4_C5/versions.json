@@ -1,0 +1,26 @@
+{
+    "norte_amazonia_sufficiency_2025": {
+        "comment": "none",
+        "commit_name": "2025 change, for region in the nord of bolivia",
+        "datetime": "19/06/2026 17:36:22",
+        "space_id": "C1_C2_C3_C4_C5"
+    },
+    "norte_amazonia_sufficiency_2025_phase2": {
+        "comment": "none",
+        "commit_name": "2025 change, for region in the nord of bolivia",
+        "datetime": "14/07/2026 16:55:59",
+        "space_id": "C1_C2_C3_C4_C5"
+    },
+    "norte_amazonia_sufficiency_2025_reality": {
+        "comment": "none",
+        "commit_name": "2025 change, for region in the nord of bolivia",
+        "datetime": "14/07/2026 17:20:16",
+        "space_id": "C1_C2_C3_C4_C5"
+    },
+    "norte_amazonia_sufficiency_2025_reality_phase2": {
+        "comment": "none",
+        "commit_name": "2025 change, for region in the nord of bolivia",
+        "datetime": "14/07/2026 17:58:01",
+        "space_id": "C1_C2_C3_C4_C5"
+    }
+}

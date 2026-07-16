@@ -1,0 +1,8 @@
+numpy
+pandas
+scikit-learn
+pyyaml
+matplotlib
+plotly
+GitPython
+amplpy

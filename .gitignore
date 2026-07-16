@@ -1,0 +1,6 @@
+# Journaux générés par EnergyScope (souvent > 100 MB, refusés par GitHub)
+*.log
+log.txt
+
+# Fichiers système
+.DS_Store
