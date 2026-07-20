@@ -19,9 +19,10 @@ from esmc.common import bo_country_code, CSV_SEPARATOR
 # Choose which case to run. Available options:
 #   'sufficiency'         -> norte_amazonia_sufficiency_2025               (data: Data/2025/sufficiency)
 #   'sufficiency_phase2'  -> norte_amazonia_sufficiency_2025_phase2        (data: Data/2025/sufficiency)
-#   'reality'             -> norte_amazonia_sufficiency_2025_reality       (data: Data/2025/reality)
-#   'reality_phase2'      -> norte_amazonia_sufficiency_2025_reality_phase2 (data: Data/2025/reality)
-selected_case = 'reality_phase2'
+#   'reality'             -> norte_amazonia_reality_2025       (data: Data/2025/reality)
+#   'reality_phase2'      -> norte_amazonia_reality_2025_phase2 (data: Data/2025/reality)
+#   'reality_access'      -> norte_amazonia_reality_access_2025 (data: Data/2025/reality_access)
+selected_case = 'reality_access'
 
 year = 2025
 
@@ -33,13 +34,17 @@ elif selected_case == 'sufficiency_phase2':
     case_study = f'norte_amazonia_sufficiency_{year}_phase2'
 elif selected_case == 'reality':
     scenario = 'reality'
-    case_study = f'norte_amazonia_sufficiency_{year}_reality'
+    case_study = f'norte_amazonia_reality_{year}'
 elif selected_case == 'reality_phase2':
     scenario = 'reality'
-    case_study = f'norte_amazonia_sufficiency_{year}_reality_phase2'
+    case_study = f'norte_amazonia_reality_{year}_phase2'
+elif selected_case == 'reality_access':
+    scenario = 'reality_access'
+    case_study = f'norte_amazonia_reality_access_{year}'
 else:
     raise ValueError(f"Unknown selected_case '{selected_case}': "
-                     "use 'sufficiency', 'sufficiency_phase2', 'reality' or 'reality_phase2'")
+                     "use 'sufficiency', 'sufficiency_phase2', 'reality', 'reality_phase2' "
+                     "or 'reality_access'")
 
 cases = [case_study]
 
@@ -65,6 +70,9 @@ save_hourly = ['Resources', 'Exchanges', 'Assets', 'Storage', 'Curt']
 # The clustering cache in 00_td_dat/ is shared across scenarios, so reusing it
 # (i = 1) after switching scenario can make the model infeasible. Regenerate once
 # per scenario, then you may switch back to i = 1 to reuse it within that scenario.
+# reality_access rebuild (DEC_SOLAR): the shared 00_td_dat cache was last regenerated for
+# sufficiency_phase2, not reality_access -> force a fresh TD regeneration here (i = 0) before
+# reusing it for the pass-2 calibration re-run within this same scenario.
 i = 0
 
 for c in cases:
@@ -143,61 +151,80 @@ for c in cases:
         #obj = costs_opt['ref']
 
 
+    # Dispersed off-grid home systems (Source B). Both phases set share_dispersion and
+    # the PV_HS/HS_DIESEL/BATT_HS home fleet explicitly, so the run never depends on
+    # whatever happens to be baked into the base data.
+    HOME_TECHS = {'PV_HS': 'f_min_PV_HS_MW',
+                  'HS_DIESEL': 'f_min_HS_DIESEL_MW',
+                  'BATT_HS': 'f_min_BATT_HS_MWh'}
+
     if c == 'norte_amazonia_sufficiency_2025':
-        print('\n--- Phase 1 (greenfield) overrides ---')
-        # Phase 1 = greenfield: no existing BC installations and no demand dispersion.
-        # The base sufficiency data ships with phase 2 brownfield values, so we reset them here.
+        # Phase 1 = greenfield: no dispersed demand, no existing home fleet (f_min=0).
         for r_code, region in my_model.regions.items():
             region.data['Misc']['share_dispersion'] = 0.0
-            for tech in ['PV_HS', 'HS_DIESEL']:
+            for tech in HOME_TECHS:
                 if tech in region.data['Technologies'].index:
                     region.data['Technologies'].loc[tech, 'f_min'] = 0.0
-            print(f'  {r_code}: share_dispersion=0, PV_HS f_min=0, HS_DIESEL f_min=0')
-        print('--- end Phase 1 overrides ---\n')
 
-    # Phase 2 = brownfield: the base sufficiency data already ships with the BC
-    # share_dispersion and PV_HS/HS_DIESEL f_min values baked in, so no override
-    # is needed here (Phase 1 above is the one that resets them to greenfield).
+    elif c == 'norte_amazonia_sufficiency_2025_phase2':
+        # Phase 2 = brownfield optimisation: the real 2025 home fleet from
+        # share_dispersion_final_BC.csv (MW/MWh -> GW/GWh, /1000) is a *floor* (f_min).
+        # f_max stays infinite so the model may still expand the home fleet if optimal.
+        bc = pd.read_csv(my_model.project_dir / 'Data' / str(year) / scenario
+                         / 'share_dispersion_final_BC.csv', index_col='Cluster')
+        for r_code, region in my_model.regions.items():
+            region.data['Misc']['share_dispersion'] = float(bc.loc[r_code, 'share_dispersion_BC'])
+            for tech, col in HOME_TECHS.items():
+                if tech in region.data['Technologies'].index:
+                    region.data['Technologies'].loc[tech, 'f_min'] = float(bc.loc[r_code, col]) / 1000.0
+                    region.data['Technologies'].loc[tech, 'f_max'] = 1e15
 
-    if c in ('norte_amazonia_sufficiency_2025_reality', 'norte_amazonia_sufficiency_2025_reality_phase2'):
-        # In pure dispatch, diesel is a purchased fuel (not infrastructure-capped).
-        # The CSV avail_exterior values reflect historical consumption in a greenfield run
-        # (where PV+storage reduced diesel use). With gensets as sole electricity source,
-        # the historical cap is too tight → infeasible. Set to unlimited so cost drives dispatch.
+    # --- Reality: pure dispatch of the real 2025 system (applies to both reality phases) ---
+    if c in ('norte_amazonia_reality_2025', 'norte_amazonia_reality_2025_phase2'):
+        # Diesel is a purchased fuel here; the historical avail_exterior caps are too tight
+        # with gensets as sole supply, so uncap them and let cost drive dispatch.
         for r_code, region in my_model.regions.items():
             if 'DIESEL' in region.data['Resources'].index:
                 region.data['Resources'].loc['DIESEL', 'avail_exterior'] = 1e6
-        # C1 is SIN-connected: avail_exterior[ELECTRICITY]=11.59 GWh was the historical
-        # baseline SIN delivery, not a physical grid capacity limit. Without local GENSET,
-        # C1 must draw its full demand (~12-14 GWh) from SIN → cap is too tight.
+        # C1's SIN import cap was a historical baseline, not a physical limit -> uncap it.
         if 'C1' in my_model.regions:
             if 'ELECTRICITY' in my_model.regions['C1'].data['Resources'].index:
                 my_model.regions['C1'].data['Resources'].loc['ELECTRICITY', 'avail_exterior'] = 1e6
 
-        # Source B home systems (PV_HS, HS_DIESEL, share_dispersion) are already
-        # brownfield-locked (f_min=f_max) in the reality CSV data, no override needed.
-        # BATT_HS is forced to 0 here: the CSV's existing home battery bank (~123 Wh/hh,
-        # negligible at cluster scale) would otherwise trip the model's
-        # pv_battery_ratio_hs_min/max constraint (0.5-2.0 kWp/kWh, sized for coherent
-        # greenfield PV+battery kits) and force PV_HS to 0 too, so that constraint is
-        # disabled for reality via pv_battery_ratio_enforced (default 1 elsewhere).
+        # Home PV/diesel are already brownfield-locked in the reality CSV. BATT_HS is forced
+        # to 0 (and the pv_battery_ratio constraint disabled) because the negligible existing
+        # home battery would otherwise trip that ratio constraint and force PV_HS to 0.
         for r_code, region in my_model.regions.items():
             region.data['Misc']['pv_battery_ratio_enforced'] = 0
             if 'BATT_HS' in region.data['Technologies'].index:
                 region.data['Technologies'].loc['BATT_HS', 'f_min'] = 0.0
                 region.data['Technologies'].loc['BATT_HS', 'f_max'] = 0.0
 
-    if c == 'norte_amazonia_sufficiency_2025_reality_phase2':
-        # Same real 2025 demand and dispatch as reality, but let the model build new
-        # utility-scale PV and grid batteries to see how much cost drops when supply
-        # is optimized. f_min stays at the existing brownfield value (0 everywhere,
-        # 0.0051 GW in C5), only f_max is unlocked.
-        # WIND_ONSHORE and HYDRO_DAM/HYDRO_RIVER are not unlocked: their f_max is 0
-        # in the base data and sufficiency_phase2 never raises it either, so leaving
-        # them at 0 keeps this comparable to sufficiency_phase2.
+    # --- Reality phase 2 only: same dispatch, but unlock utility PV + grid batteries ---
+    if c == 'norte_amazonia_reality_2025_phase2':
+        # Only f_max is raised (f_min stays brownfield). Wind/hydro stay at f_max=0 to keep
+        # this comparable to sufficiency_phase2.
         for r_code, region in my_model.regions.items():
             region.data['Technologies'].loc['PV_UTILITY', 'f_max'] = 1e15
             region.data['Technologies'].loc['BATT_LI', 'f_max'] = 1e15
+
+    # --- Reality access: real 2025 system + universal-access demand (Data/2025/reality_access) ---
+    # Modelled on the reality block, with two deliberate differences:
+    #   * pv_battery_ratio_enforced is left at its default (=1): the home battery fleet
+    #     (BATT_HS) is a real, non-negligible brownfield floor here, so the PV:battery
+    #     sizing ratio is kept active and BATT_HS is NOT forced to 0.
+    #   * All expansion floors/ceilings (PV_UTILITY, BATT_LI, PV_HS, HS_DIESEL, BATT_HS,
+    #     GENSET_DIESEL, ST_SNG) are baked into Data/2025/reality_access/*/Technologies.csv,
+    #     so no python override of f_min/f_max is needed.
+    if c == 'norte_amazonia_reality_access_2025':
+        # Diesel is a purchased fuel; uncap avail_exterior and let cost drive dispatch.
+        for r_code, region in my_model.regions.items():
+            if 'DIESEL' in region.data['Resources'].index:
+                region.data['Resources'].loc['DIESEL', 'avail_exterior'] = 1e6
+        # C1's SIN import cap was a historical baseline, not a physical limit -> uncap it.
+        if 'C1' in my_model.regions:
+            if 'ELECTRICITY' in my_model.regions['C1'].data['Resources'].index:
+                my_model.regions['C1'].data['Resources'].loc['ELECTRICITY', 'avail_exterior'] = 1e6
 
     # for near-optimal space exploration with epsilon optimality
     if 'epsilon' in c:
@@ -232,7 +259,8 @@ for c in cases:
     my_model.print_data(indep=True)
 
     # Set the Energy System Optimization Model (ESOM) as an ampl formulated problem
-    if c in ('norte_amazonia_sufficiency_2025_reality', 'norte_amazonia_sufficiency_2025_reality_phase2'):
+    if c in ('norte_amazonia_reality_2025', 'norte_amazonia_reality_2025_phase2',
+             'norte_amazonia_reality_access_2025'):
         # Brownfield lock-down reduces the LP to ~400K vars after presolve.
         # crossover=1 is feasible at this size; avoids barrier degeneracy from tightly-fixed constraints.
         # No baropt: let CPLEX use dual simplex (barrier degenerates on tight brownfield LP)

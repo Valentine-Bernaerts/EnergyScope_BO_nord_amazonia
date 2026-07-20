@@ -148,6 +148,7 @@ param share_short_haul_flights_max{REGIONS} >= 0, <= 1; # %_aviation,max [-]: ma
 param share_dispersion {REGIONS} >= 0, <= 1 default 0; # %_tasa_dispersion,max [-]:
 param pv_battery_ratio_min := 0.5; # kW PV por kWh batería
 param pv_battery_ratio_max := 2.0; # kW PV por kWh batería
+param pv_battery_ratio_enforced {REGIONS} >= 0, <= 1 default 1; # 0 disables the PV:battery sizing ratio (greenfield rule) for a region, e.g. when TECH_HS is brownfield-locked to a heterogeneous existing fleet
 
 # Share train vs truck vs boat in freight transportation
 param share_freight_train_min{REGIONS} >= 0, <= 1; # %_rail,min [-]: min limit for penetration of train in freight transportation
@@ -664,9 +665,9 @@ subject to extra_dhn{c in REGIONS}:
 subject to HS_storage {c in REGIONS, h in HOURS, td in TYPICAL_DAYS: "PV_HS" in TECHNOLOGIES and "BATT_HS" in TECHNOLOGIES}:
 	Storage_in [c, "BATT_HS", "ELECTRICITY",h,td] <=  layers_in_out["PV_HS", "ELECTRICITY"]* F_t[c, "PV_HS", h, td];
 
-subject to pv_battery_ratio_hs_min {c in REGIONS: "PV_HS" in TECHNOLOGIES and "BATT_HS" in TECHNOLOGIES}:
+subject to pv_battery_ratio_hs_min {c in REGIONS: pv_battery_ratio_enforced[c] > 0.5 and "PV_HS" in TECHNOLOGIES and "BATT_HS" in TECHNOLOGIES}:
 	pv_battery_ratio_min * F[c, "BATT_HS"] <= F[c, "PV_HS"];
-subject to pv_battery_ratio_hs_max {c in REGIONS: "PV_HS" in TECHNOLOGIES and "BATT_HS" in TECHNOLOGIES}:
+subject to pv_battery_ratio_hs_max {c in REGIONS: pv_battery_ratio_enforced[c] > 0.5 and "PV_HS" in TECHNOLOGIES and "BATT_HS" in TECHNOLOGIES}:
 	F[c, "PV_HS"] <= pv_battery_ratio_max * F[c, "BATT_HS"];
 
 ## Mobility shares
