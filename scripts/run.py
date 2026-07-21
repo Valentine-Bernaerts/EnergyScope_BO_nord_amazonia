@@ -77,7 +77,13 @@ save_hourly = ['Resources', 'Exchanges', 'Assets', 'Storage', 'Curt']
 # pass-1 attempt (case_studies/C1_C2_C3_C4_C5/00_td_dat/), rather than regenerating,
 # to isolate whether TD regeneration (kmedoid non-determinism / concurrent-session cache
 # clobber) or the fmin_perc/f_min parameters themselves caused the infeasibility.
-i = 1
+# 2026-07-21: reality_access now solves to CPLEX-certified optimality (solve_result_num=0,
+# TotalCost 71.40 M€/yr) once opti_probl.py's iisfind is fixed to be set BEFORE solve
+# (see esmc/utils/opti_probl.py run_ampl()). i=0 here because the shared 00_td_dat/ cache
+# was subsequently overwritten by a sufficiency validation run -> must regenerate the
+# reality_access TDs before the next reality_access solve (see warning above: reusing a
+# cache built for a different scenario can make the model infeasible/spurious).
+i = 0
 
 for c in cases:
 

@@ -61,19 +61,29 @@ class OptiProbl:
 
         return
 
-    def run_ampl(self):
+    def run_ampl(self, iis_diagnostic=False):
         """
-        Ejecuta la optimización con AMPL, genera IIS si el modelo es infeasible, y aplica Feasopt si es necesario.
+        Ejecuta la optimización con AMPL. Si iis_diagnostic=True, activa el
+        'iisfind' de CPLEX ANTES del solve para que, si el modelo resulta
+        infeasible, se pueda leer el IIS exacto (conjunto irreducible de
+        restricciones/variables en conflicto) via los sufijos .iis de AMPL.
+
+        iis_diagnostic queda en False por defecto: los runs normales (factibles)
+        no deben ver modificado ni su solve ni sus opciones de cplex.
         """
+        self.iis_cons = None
+        self.iis_vars = None
         try:
             # Configurar opciones del solver
             for o in self.options:
                 self.ampl.setOption(o, self.options[o])
 
-            # iisfind must be set BEFORE solve() so CPLEX computes the IIS as part of
-            # the same solve if it turns out infeasible (setting it after solve() is too late).
-            base_cplex_options = self.options.get('cplex_options', '')
-            self.ampl.setOption('cplex_options', (base_cplex_options + ' iisfind 1').strip())
+            if iis_diagnostic:
+                # iisfind DEBE fijarse ANTES de solve(): CPLEX solo calcula el IIS
+                # como parte del mismo solve que detecta la infeasibilidad; fijarlo
+                # después (como en el intento anterior) llega demasiado tarde.
+                base_cplex_options = self.options.get('cplex_options', '')
+                self.ampl.setOption('cplex_options', (base_cplex_options + ' iisfind=1').strip())
 
             # Resolver el modelo
             self.ampl.solve()
@@ -83,27 +93,23 @@ class OptiProbl:
             if solve_result not in [0, 1]:  # 0 = Óptimo, 1 = Factible
                 print("El modelo es primal-dual infeasible o no tiene solución factible.")
 
-                # Reportar el IIS via los sufijos .iis de AMPL (no existe comando "write iis;")
-                try:
-                    print("=== IIS_REPORT_START ===")
-                    self.ampl.eval(
-                        'display {i in 1.._ncons: _con[i].iis <> "not"} (_conname[i], _con[i].iis);'
-                    )
-                    self.ampl.eval(
-                        'display {i in 1.._nvars: _var[i].iis <> "not"} (_varname[i], _var[i].iis);'
-                    )
-                    print("=== IIS_REPORT_END ===")
-                except Exception as e:
-                    print(f"Error al generar el reporte IIS: {e}")
-
-                # Intentar Feasopt
-                # try:
-                #     print("Intentando la relajación de factibilidad...")
-                #     self.ampl.setOption('cplex_options', 'feasopt=2')  # Minimizar la suma de las relajaciones
-                #     self.ampl.solve()
-                #     print("Relajación de factibilidad completa. Revisa la solución ajustada.")
-                # except Exception as e:
-                #     print(f"Error al aplicar Feasopt: {e}")
+                if iis_diagnostic:
+                    # AMPL no tiene un comando "write iis;". CPLEX expone el IIS via
+                    # el sufijo .iis en variables/restricciones, con valores:
+                    # "non" = no forma parte del IIS, "low"/"upp" = la cota
+                    # inferior/superior forma parte del IIS, "fix" = la restricción
+                    # de igualdad forma parte del IIS.
+                    try:
+                        cons_df = self.ampl.getData('_conname, _con.iis').toPandas()
+                        vars_df = self.ampl.getData('_varname, _var.iis').toPandas()
+                        self.iis_cons = cons_df[cons_df['_con.iis'] != 'non']
+                        self.iis_vars = vars_df[vars_df['_var.iis'] != 'non']
+                        print("=== IIS_REPORT_START ===")
+                        print(self.iis_cons.to_string())
+                        print(self.iis_vars.to_string())
+                        print("=== IIS_REPORT_END ===")
+                    except Exception as e:
+                        print(f"Error al generar el reporte IIS: {e}")
 
             else:
                 print("El modelo ha sido resuelto satisfactoriamente.")
@@ -116,6 +122,53 @@ class OptiProbl:
         except Exception as e:
             print(f"Ocurrió un error durante la optimización: {e}")
             raise RuntimeError("La optimización con AMPL falló. Consulta los detalles arriba.")
+
+    def run_feasopt(self, con_names=None):
+        """
+        Diagnóstico complementario al IIS: relajación mínima de factibilidad
+        (CPLEX 'feasopt=2' -> "find a 'best' solution among the relaxed
+        feasible points", cplex_options README). NO debe llamarse desde
+        run_ampl ni desde un run normal: es un método explícito, a invocar
+        a mano cuando el IIS es demasiado grande/ambiguo para interpretarse
+        directamente.
+
+        FeasOpt no modifica el modelo: la solución que devuelve sigue siendo
+        infeasible respecto a los bounds/rhs originales. Por lo tanto acá no
+        leemos ningún suffix propietario de relajación; en su lugar se
+        recalcula, para cada restricción indicada (típicamente las del IIS),
+        el delta = valor del cuerpo de la restricción tras el resolve - el
+        bound original que violaría, lo cual es la relajación mínima real
+        necesaria para volver factible.
+
+        Parameters
+        ----------
+        con_names : list(str) or None
+            Nombres (con subíndices) de las restricciones a diagnosticar,
+            normalmente self.iis_cons['_conname'].tolist() de un run_ampl
+            previo con iis_diagnostic=True. Si None, se usa self.iis_cons.
+
+        Returns
+        -------
+        pandas.DataFrame con columnas [name, body, lb, ub, delta_lb, delta_ub]
+        """
+        if con_names is None:
+            if self.iis_cons is None or len(self.iis_cons) == 0:
+                raise ValueError("No iis_cons available: run run_ampl(iis_diagnostic=True) first "
+                                  "or pass con_names explicitly.")
+            con_names = set(self.iis_cons['_conname'].tolist())
+
+        base_cplex_options = self.options.get('cplex_options', '')
+        self.ampl.setOption('cplex_options', (base_cplex_options + ' feasopt=2').strip())
+        self.ampl.solve()
+
+        # Same generic _con[i] indexing as the IIS report (avoids re-parsing the
+        # bracketed instance name back into an index tuple for ampl.getConstraint).
+        df = self.ampl.getData('_conname, _con.body, _con.lb, _con.ub').toPandas()
+        df = df[df['_conname'].isin(con_names)].copy()
+        df['delta_lb'] = (df['_con.lb'] - df['_con.body']).clip(lower=0.0)
+        df['delta_ub'] = (df['_con.body'] - df['_con.ub']).clip(lower=0.0)
+        return df.rename(columns={'_conname': 'name', '_con.body': 'body',
+                                   '_con.lb': 'lb', '_con.ub': 'ub'})
 
     def get_solve_info(self):
         """

@@ -719,12 +719,16 @@ class Esmc:
 
         return
 
-    def solve_esom(self, run=True):
+    def solve_esom(self, run=True, iis_diagnostic=False):
         """Solves the esom wih ampl
 
         Parameters
         ----------
         run
+        iis_diagnostic : bool
+            Forwarded to OptiProbl.run_ampl(). False by default: leaves the
+            solve of a normal (feasible) run untouched. Set True only for a
+            standalone infeasibility diagnosis run.
 
         Returns
         -------
@@ -744,7 +748,7 @@ class Esmc:
             # logging info
             logging.info('Solving optimisation problem')
             # running esom
-            self.esom.run_ampl()
+            self.esom.run_ampl(iis_diagnostic=iis_diagnostic)
             # logging info
             logging.info('Finished run')
             # print in log main outputs
