@@ -73,7 +73,11 @@ save_hourly = ['Resources', 'Exchanges', 'Assets', 'Storage', 'Curt']
 # reality_access rebuild (DEC_SOLAR): the shared 00_td_dat cache was last regenerated for
 # sufficiency_phase2, not reality_access -> force a fresh TD regeneration here (i = 0) before
 # reusing it for the pass-2 calibration re-run within this same scenario.
-i = 0
+# Diagnostic run (2026-07-20): i=1 to reuse the on-disk TD cache from the infeasible
+# pass-1 attempt (case_studies/C1_C2_C3_C4_C5/00_td_dat/), rather than regenerating,
+# to isolate whether TD regeneration (kmedoid non-determinism / concurrent-session cache
+# clobber) or the fmin_perc/f_min parameters themselves caused the infeasibility.
+i = 1
 
 for c in cases:
 

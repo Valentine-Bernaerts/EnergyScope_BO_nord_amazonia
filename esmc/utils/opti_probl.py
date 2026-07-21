@@ -70,6 +70,11 @@ class OptiProbl:
             for o in self.options:
                 self.ampl.setOption(o, self.options[o])
 
+            # iisfind must be set BEFORE solve() so CPLEX computes the IIS as part of
+            # the same solve if it turns out infeasible (setting it after solve() is too late).
+            base_cplex_options = self.options.get('cplex_options', '')
+            self.ampl.setOption('cplex_options', (base_cplex_options + ' iisfind 1').strip())
+
             # Resolver el modelo
             self.ampl.solve()
 
@@ -78,14 +83,18 @@ class OptiProbl:
             if solve_result not in [0, 1]:  # 0 = Óptimo, 1 = Factible
                 print("El modelo es primal-dual infeasible o no tiene solución factible.")
 
-                # Intentar generar el archivo IIS
+                # Reportar el IIS via los sufijos .iis de AMPL (no existe comando "write iis;")
                 try:
-                    print("Intentando generar el archivo IIS...")
-                    self.ampl.setOption('cplex_options', 'iisfind=1')
-                    self.ampl.eval('write iis;')
-                    print("El archivo IIS ha sido generado en el directorio de trabajo actual.")
+                    print("=== IIS_REPORT_START ===")
+                    self.ampl.eval(
+                        'display {i in 1.._ncons: _con[i].iis <> "not"} (_conname[i], _con[i].iis);'
+                    )
+                    self.ampl.eval(
+                        'display {i in 1.._nvars: _var[i].iis <> "not"} (_varname[i], _var[i].iis);'
+                    )
+                    print("=== IIS_REPORT_END ===")
                 except Exception as e:
-                    print(f"Error al generar el archivo IIS: {e}")
+                    print(f"Error al generar el reporte IIS: {e}")
 
                 # Intentar Feasopt
                 # try:

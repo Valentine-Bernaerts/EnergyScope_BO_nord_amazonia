@@ -13,8 +13,8 @@
     },
     "norte_amazonia_reality_access_2025": {
         "comment": "none",
-        "commit_name": "2025",
-        "datetime": "20/07/2026 02:25:15",
+        "commit_name": "Sufficiency reference (2026-07-20): DEC_SOLAR + TS_DEC priced (19 EUR/kWh, ESTD Table 29), DEC_HP_ELEC blocked for rural plausibility, spatial layer resized to 1169 kWh/HH",
+        "datetime": "21/07/2026 10:34:44",
         "space_id": "C1_C2_C3_C4_C5"
     },
     "norte_amazonia_sufficiency_2025": {
