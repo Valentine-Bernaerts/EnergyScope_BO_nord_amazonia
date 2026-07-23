@@ -157,8 +157,11 @@ class OptiProbl:
                                   "or pass con_names explicitly.")
             con_names = set(self.iis_cons['_conname'].tolist())
 
+        # NB: the classic CPLEX driver's "feasopt=2" does not exist in this AMPL MP-based
+        # cplex driver (confirmed via `cplex.exe -=`); the equivalent option here is
+        # alg:feasrelax=1 ("minimize the weighted sum of violations", weights default to 1).
         base_cplex_options = self.options.get('cplex_options', '')
-        self.ampl.setOption('cplex_options', (base_cplex_options + ' feasopt=2').strip())
+        self.ampl.setOption('cplex_options', (base_cplex_options + ' feasrelax=1').strip())
         self.ampl.solve()
 
         # Same generic _con[i] indexing as the IIS report (avoids re-parsing the

@@ -238,7 +238,8 @@ class TemporalAggregation:
         # define options
         cplex_options = ['mipdisplay=5',
                                'mipinterval=1000',
-                               'mipgap=1e-6']
+                               'mipgap=1e-6',
+                               'seed=42']
         cplex_options_str = ' '.join(cplex_options)
         options= {'show_stats': 3,
                          'log_file': str(log_file),

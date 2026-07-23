@@ -170,6 +170,7 @@ param f_max {REGIONS, TECHNOLOGIES} >= 0; # Maximum feasible installed capacity 
 param f_min {REGIONS, TECHNOLOGIES} >= 0; # Minimum feasible installed capacity [GW], refers to main output. storage level [GWh] for STORAGE_TECH
 param fmax_perc {REGIONS, TECHNOLOGIES} >= 0, <= 1 default 1; # value in [0,1]: this is to fix that a technology can at max produce a certain % of the total output of its sector over the entire year
 param fmin_perc {REGIONS, TECHNOLOGIES} >= 0, <= 1 default 0; # value in [0,1]: this is to fix that a technology can at min produce a certain % of the total output of its sector over the entire year
+param f_min_prod {REGIONS, TECHNOLOGIES} >= 0 default 0; # [GWh/y] absolute annual production floor for a technology, independent of any end-use-type assiette. Default 0 = inactive for all existing scenarios. See f_min_prod_abs constraint.
 param avail_local {REGIONS, RESOURCES} >= 0; # Yearly availability of resources [GWh/y]
 param avail_exterior {REGIONS, RESOURCES} >= 0;
 param c_op_local {REGIONS, RESOURCES} >= 0; # cost of resources in the different periods [MCHF/GWh]
@@ -844,7 +845,15 @@ subject to f_min_perc {c in REGIONS, eut in END_USES_TYPES, j in TECHNOLOGIES_OF
 	sum {t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]} (F_t [c,j,h,td] * t_op[h,td]) >= fmin_perc [c,j] * 
 	(sum {j2 in TECHNOLOGIES_OF_END_USES_TYPE[eut], t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]} (F_t [c, j2, h, td] * t_op[h,td])
 	+ sum {r in RESOURCES, t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]} (layers_in_out [r, eut] * (R_t_local [c, r, h, td] + R_t_exterior [c, r, h, td] + R_t_import [c, r, h, td] - R_t_export [c, r, h, td])));
-	
+
+# Absolute annual production floor [GWh/y], independent of any end-use-type assiette.
+# Introduced for frozen-counterfactual scenarios (e.g. reality_access) where fmin_perc's
+# percentage-of-assiette floor is circular: the floor shifts the tech mix, which shifts
+# the assiette, which shifts the floor. f_min_prod defaults to 0, making this inactive
+# for every other scenario.
+subject to f_min_prod_abs {c in REGIONS, eut in END_USES_TYPES, j in TECHNOLOGIES_OF_END_USES_TYPE[eut]}:
+	sum {t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]} (F_t [c,j,h,td] * t_op[h,td]) >= f_min_prod [c,j];
+
 # [Eq. ..] Limit electricity import capacity
 subject to max_elec_import {c in REGIONS, h in HOURS, td in TYPICAL_DAYS}:
 	R_t_exterior [c,"ELECTRICITY", h, td] * t_op [h, td] <= import_capacity[c];

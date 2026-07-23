@@ -16,13 +16,9 @@ sys.path.insert(0, r'C:\Valen\Tfe\EnergyScope_BO_nord_amazonia')
 from esmc import Esmc
 from esmc.common import bo_country_code, CSV_SEPARATOR
 
-# Choose which case to run. Available options:
-#   'sufficiency'         -> norte_amazonia_sufficiency_2025               (data: Data/2025/sufficiency)
-#   'sufficiency_phase2'  -> norte_amazonia_sufficiency_2025_phase2        (data: Data/2025/sufficiency)
-#   'reality'             -> norte_amazonia_reality_2025       (data: Data/2025/reality)
-#   'reality_phase2'      -> norte_amazonia_reality_2025_phase2 (data: Data/2025/reality)
-#   'reality_access'      -> norte_amazonia_reality_access_2025 (data: Data/2025/reality_access)
-selected_case = 'reality_access'
+# Choose which case to run:
+#   sufficiency / sufficiency_phase2 / reality / reality_phase2 / reality_access
+selected_case = 'reality'
 
 year = 2025
 
@@ -66,47 +62,26 @@ f_perc = True
 
 save_hourly = ['Resources', 'Exchanges', 'Assets', 'Storage', 'Curt']
 
-# Set i = 0 to (re)generate the TD clustering for the current scenario (kmedoid).
-# The clustering cache in 00_td_dat/ is shared across scenarios, so reusing it
-# (i = 1) after switching scenario can make the model infeasible. Regenerate once
-# per scenario, then you may switch back to i = 1 to reuse it within that scenario.
-# reality_access rebuild (DEC_SOLAR): the shared 00_td_dat cache was last regenerated for
-# sufficiency_phase2, not reality_access -> force a fresh TD regeneration here (i = 0) before
-# reusing it for the pass-2 calibration re-run within this same scenario.
-# Diagnostic run (2026-07-20): i=1 to reuse the on-disk TD cache from the infeasible
-# pass-1 attempt (case_studies/C1_C2_C3_C4_C5/00_td_dat/), rather than regenerating,
-# to isolate whether TD regeneration (kmedoid non-determinism / concurrent-session cache
-# clobber) or the fmin_perc/f_min parameters themselves caused the infeasibility.
-# 2026-07-21: reality_access now solves to CPLEX-certified optimality (solve_result_num=0,
-# TotalCost 71.40 M€/yr) once opti_probl.py's iisfind is fixed to be set BEFORE solve
-# (see esmc/utils/opti_probl.py run_ampl()). i=0 here because the shared 00_td_dat/ cache
-# was subsequently overwritten by a sufficiency validation run -> must regenerate the
-# reality_access TDs before the next reality_access solve (see warning above: reusing a
-# cache built for a different scenario can make the model infeasible/spurious).
+# i = 0 regenerates the TD clustering (kmedoid); i = 1 reuses the cache in 00_td_dat/.
+# That cache is shared across scenarios, so regenerate after switching scenario.
 i = 0
 
 for c in cases:
 
     print(c)
 
-    # define configuration
     config = {'case_study': c,
               'comment': 'none',
-              # Ligne originale (ligne 45 du script original) :
-              # 'regions_names': bo_country_code,
-              # Remplacée par 5 régions car 8 régions (~16 GB RAM) dépasse la mémoire disponible.
-              # Pour revenir à 8 régions : décommenter la ligne ci-dessus et commenter la ligne ci-dessous.
-              'regions_names': ['C1', 'C2', 'C3', 'C4', 'C5'],
+              'regions_names': ['C1', 'C2', 'C3', 'C4', 'C5'],  # 5 clusters (8 full regions needs ~16GB RAM)
               'gwp_limit_overall': gwp_limit_overall,
               're_share_primary': re_share_primary,
               'f_perc': f_perc,
               'year': year,
               'scenario': scenario}
 
-    # initialize EnergyScope Multi-cells framework
     my_model = Esmc(config, nbr_td=tds)
 
-    # redirect data/output paths to this repo instead of EnergyScope_multicell_BO_Roger_Thesis
+    # use this repo's paths, not the template repo's
     current_project = Path(__file__).parents[1]
     my_model.project_dir = current_project
     my_model.dat_dir = current_project / 'case_studies' / my_model.space_id / '00_td_dat'
@@ -114,16 +89,12 @@ for c in cases:
     my_model.dat_dir.mkdir(parents=True, exist_ok=True)
     my_model.cs_dir.mkdir(parents=True, exist_ok=True)
 
-    # read the indep data
     my_model.read_data_indep()
-
-    # initialize the different regions and reads their data
     my_model.init_regions()
 
     #mod_path = [my_model.cs_dir / 'ESMC_model_AMPL_BAU.mod',
     #            my_model.cs_dir / 'ESMC_obj_TotalCost_BAU.mod']
 
-    # update some data
     ft_to_drop = ['BIOMASS_TO_GASOLINE', 'BIOMASS_TO_DIESEL', 'BIOWASTE_TO_GASOLINE', 'BIOWASTE_TO_DIESEL',
                   'POWER_TO_GASOLINE', 'POWER_TO_DIESEL', 'H2_TO_GASOLINE', 'H2_TO_DIESEL']
     my_model.ref_region.data['Technologies'] = my_model.ref_region.data['Technologies'].drop(index=ft_to_drop)
@@ -161,15 +132,13 @@ for c in cases:
         #obj = costs_opt['ref']
 
 
-    # Dispersed off-grid home systems (Source B). Both phases set share_dispersion and
-    # the PV_HS/HS_DIESEL/BATT_HS home fleet explicitly, so the run never depends on
-    # whatever happens to be baked into the base data.
+    # off-grid home systems: PV_HS / HS_DIESEL / BATT_HS, set explicitly per phase
     HOME_TECHS = {'PV_HS': 'f_min_PV_HS_MW',
                   'HS_DIESEL': 'f_min_HS_DIESEL_MW',
                   'BATT_HS': 'f_min_BATT_HS_MWh'}
 
     if c == 'norte_amazonia_sufficiency_2025':
-        # Phase 1 = greenfield: no dispersed demand, no existing home fleet (f_min=0).
+        # phase 1 = greenfield: no dispersed demand, no existing home fleet
         for r_code, region in my_model.regions.items():
             region.data['Misc']['share_dispersion'] = 0.0
             for tech in HOME_TECHS:
@@ -177,9 +146,7 @@ for c in cases:
                     region.data['Technologies'].loc[tech, 'f_min'] = 0.0
 
     elif c == 'norte_amazonia_sufficiency_2025_phase2':
-        # Phase 2 = brownfield optimisation: the real 2025 home fleet from
-        # share_dispersion_final_BC.csv (MW/MWh -> GW/GWh, /1000) is a *floor* (f_min).
-        # f_max stays infinite so the model may still expand the home fleet if optimal.
+        # phase 2 = brownfield: real 2025 home fleet is a floor (f_min), f_max stays open
         bc = pd.read_csv(my_model.project_dir / 'Data' / str(year) / scenario
                          / 'share_dispersion_final_BC.csv', index_col='Cluster')
         for r_code, region in my_model.regions.items():
@@ -189,49 +156,38 @@ for c in cases:
                     region.data['Technologies'].loc[tech, 'f_min'] = float(bc.loc[r_code, col]) / 1000.0
                     region.data['Technologies'].loc[tech, 'f_max'] = 1e15
 
-    # --- Reality: pure dispatch of the real 2025 system (applies to both reality phases) ---
+    # --- Reality: dispatch of the real 2025 system (both reality phases) ---
     if c in ('norte_amazonia_reality_2025', 'norte_amazonia_reality_2025_phase2'):
-        # Diesel is a purchased fuel here; the historical avail_exterior caps are too tight
-        # with gensets as sole supply, so uncap them and let cost drive dispatch.
+        # diesel is a purchased fuel; the historical caps are too tight, uncap them
         for r_code, region in my_model.regions.items():
             if 'DIESEL' in region.data['Resources'].index:
                 region.data['Resources'].loc['DIESEL', 'avail_exterior'] = 1e6
-        # C1's SIN import cap was a historical baseline, not a physical limit -> uncap it.
+        # C1's SIN import cap is historical, not physical -> uncap it too
         if 'C1' in my_model.regions:
             if 'ELECTRICITY' in my_model.regions['C1'].data['Resources'].index:
                 my_model.regions['C1'].data['Resources'].loc['ELECTRICITY', 'avail_exterior'] = 1e6
 
-        # Home PV/diesel are already brownfield-locked in the reality CSV. BATT_HS is forced
-        # to 0 (and the pv_battery_ratio constraint disabled) because the negligible existing
-        # home battery would otherwise trip that ratio constraint and force PV_HS to 0.
+        # BATT_HS is negligible in reality -> force to 0 and disable the pv_battery ratio check
         for r_code, region in my_model.regions.items():
             region.data['Misc']['pv_battery_ratio_enforced'] = 0
             if 'BATT_HS' in region.data['Technologies'].index:
                 region.data['Technologies'].loc['BATT_HS', 'f_min'] = 0.0
                 region.data['Technologies'].loc['BATT_HS', 'f_max'] = 0.0
 
-    # --- Reality phase 2 only: same dispatch, but unlock utility PV + grid batteries ---
+    # --- Reality phase 2: same dispatch, but unlock utility PV + grid batteries ---
     if c == 'norte_amazonia_reality_2025_phase2':
-        # Only f_max is raised (f_min stays brownfield). Wind/hydro stay at f_max=0 to keep
-        # this comparable to sufficiency_phase2.
+        # f_min stays brownfield; wind/hydro stay off to match sufficiency_phase2
         for r_code, region in my_model.regions.items():
             region.data['Technologies'].loc['PV_UTILITY', 'f_max'] = 1e15
             region.data['Technologies'].loc['BATT_LI', 'f_max'] = 1e15
 
-    # --- Reality access: real 2025 system + universal-access demand (Data/2025/reality_access) ---
-    # Modelled on the reality block, with two deliberate differences:
-    #   * pv_battery_ratio_enforced is left at its default (=1): the home battery fleet
-    #     (BATT_HS) is a real, non-negligible brownfield floor here, so the PV:battery
-    #     sizing ratio is kept active and BATT_HS is NOT forced to 0.
-    #   * All expansion floors/ceilings (PV_UTILITY, BATT_LI, PV_HS, HS_DIESEL, BATT_HS,
-    #     GENSET_DIESEL, ST_SNG) are baked into Data/2025/reality_access/*/Technologies.csv,
-    #     so no python override of f_min/f_max is needed.
+    # --- Reality access: real 2025 system + universal-access demand ---
+    # f_min/f_max floors are baked into Data/2025/reality_access/*/Technologies.csv,
+    # so pv_battery_ratio_enforced stays at its default (BATT_HS is a real floor here).
     if c == 'norte_amazonia_reality_access_2025':
-        # Diesel is a purchased fuel; uncap avail_exterior and let cost drive dispatch.
         for r_code, region in my_model.regions.items():
             if 'DIESEL' in region.data['Resources'].index:
                 region.data['Resources'].loc['DIESEL', 'avail_exterior'] = 1e6
-        # C1's SIN import cap was a historical baseline, not a physical limit -> uncap it.
         if 'C1' in my_model.regions:
             if 'ELECTRICITY' in my_model.regions['C1'].data['Resources'].index:
                 my_model.regions['C1'].data['Resources'].loc['ELECTRICITY', 'avail_exterior'] = 1e6
@@ -254,26 +210,18 @@ for c in cases:
         mod_path = [my_model.cs_dir / 'ESMC_model_AMPL.mod',
                     my_model.cs_dir / 'epsilon_models' / 'epsilon_elec_grid.mod']
 
-    # Initialize and solve the temporal aggregation algorithm:
-    # if already run, set algo='read' to read the solution of the clustering
-    # else, set algo='kmedoid' to run kmedoid clustering algorithm to choose typical days (TDs)
     if i==0:
         my_model.init_ta(algo='kmedoid', ampl_path=ampl_path)
     else:
         my_model.init_ta(algo='read', ampl_path=ampl_path)
 
-    # Print the time related data of the energy system optimization model using the TDs to represent it
     my_model.print_td_data()
-
-    # Print data
     my_model.print_data(indep=True)
 
-    # Set the Energy System Optimization Model (ESOM) as an ampl formulated problem
     if c in ('norte_amazonia_reality_2025', 'norte_amazonia_reality_2025_phase2',
              'norte_amazonia_reality_access_2025'):
-        # Brownfield lock-down reduces the LP to ~400K vars after presolve.
-        # crossover=1 is feasible at this size; avoids barrier degeneracy from tightly-fixed constraints.
-        # No baropt: let CPLEX use dual simplex (barrier degenerates on tight brownfield LP)
+        # brownfield lock-down shrinks the LP to ~400K vars after presolve;
+        # dual simplex (no baropt) avoids barrier degeneracy on the tightly-fixed constraints
         reality_cplex = ['timelimit 172800', 'display=2']
         reality_ampl_options = {
             'show_stats': 3,
@@ -290,27 +238,12 @@ for c in cases:
     else:
         my_model.set_esom(ampl_path=ampl_path)
 
-    # Solving the ESOM
     my_model.solve_esom()
-
-    # Getting and printing year results
     my_model.get_year_results(save_hourly=save_hourly)
     my_model.prints_esom(inputs=True, outputs=True, solve_info=True, save_hourly=save_hourly)
-
-    # delete ampl object to free resources
     my_model.esom.ampl.close()
 
     i+=1
 
-# =============================================================================
-# HOW TO RUN THIS SCRIPT
-# -----------------------------------------------------------------------------
-# Terminal: PowerShell
-#
-# Command to copy and paste:
-#   & C:/Users/valen/anaconda3/envs/energyscope/python.exe c:/Valen/Tfe/EnergyScope_BO_nord_amazonia/scripts/run.py
-#
-# Notes:
-# - Use the conda "energyscope" environment (not "ramp", not "base")
-# - AMPL must be installed in C:\Users\valen\AMPL
-# =============================================================================
+# Run with: & C:/Users/valen/anaconda3/envs/energyscope/python.exe scripts/run.py
+# Use the "energyscope" conda env; AMPL must be installed in C:\Users\valen\AMPL

@@ -150,7 +150,7 @@ Storage;Electricity storage;Batteries of electric cars;BEV_BATT;0;0;0;1;1;0;1;0;
 Storage;Electricity storage;Batteries of plug-in hybrid cars;PHEV_BATT;0;0;0;1;1;0;1;0;0;
 Storage;Electricity storage;Hydro dam storage;DAM_STORAGE;0;0;0;100;1;0;1;0;0;
 Storage;Electricity storage;Pumped hydro storage;PHS;58.8;0;8.33;50;1;0;1;0;0;
-Storage;Thermal storage;Decentralised direct elec;TS_DEC_DIRECT_ELEC;0;0;0;20;1;0;1;0;0;
+Storage;Thermal storage;Decentralised direct elec;TS_DEC_DIRECT_ELEC;19;0.13;0;25;1;0;1;0;0;
 Storage;Thermal storage;Decentralised electrical heat pumps;TS_DEC_HP_ELEC;0;0;0;20;1;0;1;0;0;
 Storage;Thermal storage;Decentralised thermal heat pumps gas;TS_DEC_THHP_GAS;0;0;0;20;1;0;1;0;0;
 Storage;Thermal storage;Decentralised cogeneration gas;TS_DEC_COGEN_GAS;0;0;0;20;1;0;1;0;0;
