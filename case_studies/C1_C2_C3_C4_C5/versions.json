@@ -1,32 +1,32 @@
 {
     "norte_amazonia_reality_2025": {
         "comment": "none",
-        "commit_name": "2025",
-        "datetime": "18/07/2026 00:42:03",
+        "commit_name": "Add absolute production floors (f_min_prod) to reality_access, fix GENSET unit bug, recalibrate share_dispersion",
+        "datetime": "25/07/2026 10:48:49",
         "space_id": "C1_C2_C3_C4_C5"
     },
     "norte_amazonia_reality_2025_phase2": {
         "comment": "none",
-        "commit_name": "2025",
-        "datetime": "18/07/2026 01:18:31",
+        "commit_name": "Fix CPLEX IIS diagnostic: iisfind must be set before solve()",
+        "datetime": "23/07/2026 22:55:16",
         "space_id": "C1_C2_C3_C4_C5"
     },
     "norte_amazonia_reality_access_2025": {
         "comment": "none",
-        "commit_name": "Sufficiency reference (2026-07-20): DEC_SOLAR + TS_DEC priced (19 EUR/kWh, ESTD Table 29), DEC_HP_ELEC blocked for rural plausibility, spatial layer resized to 1169 kWh/HH",
-        "datetime": "21/07/2026 10:34:44",
+        "commit_name": "Add absolute production floors (f_min_prod) to reality_access, fix GENSET unit bug, recalibrate share_dispersion",
+        "datetime": "25/07/2026 12:28:02",
         "space_id": "C1_C2_C3_C4_C5"
     },
     "norte_amazonia_sufficiency_2025": {
         "comment": "none",
-        "commit_name": "2025",
-        "datetime": "19/07/2026 22:25:46",
+        "commit_name": "Checkpoint before IIS diagnostic fix: reality_access case study + WIP IIS attempt",
+        "datetime": "21/07/2026 15:58:24",
         "space_id": "C1_C2_C3_C4_C5"
     },
     "norte_amazonia_sufficiency_2025_phase2": {
         "comment": "none",
-        "commit_name": "2025",
-        "datetime": "20/07/2026 00:17:11",
+        "commit_name": "Add absolute production floors (f_min_prod) to reality_access, fix GENSET unit bug, recalibrate share_dispersion",
+        "datetime": "24/07/2026 16:06:54",
         "space_id": "C1_C2_C3_C4_C5"
     }
 }

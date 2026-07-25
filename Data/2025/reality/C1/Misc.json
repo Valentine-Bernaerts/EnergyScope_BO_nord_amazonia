@@ -15,7 +15,7 @@
     "share_freight_boat_max":  0.0216,
     "share_heat_dhn_min":  0.0,
     "share_heat_dhn_max":  0.0,
-    "share_dispersion":  0.0636114251727556,
+    "share_dispersion":  0.0,
     "share_short_haul_flights_min":  0.0,
     "share_short_haul_flights_max":  0.0,
     "share_ned":  {

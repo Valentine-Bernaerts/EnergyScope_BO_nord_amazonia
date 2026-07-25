@@ -124,7 +124,7 @@ class Region:
                 df = pd.read_csv(r_path, sep=CSV_SEPARATOR, header=[0], index_col=[3], skiprows=[1],
                                  dtype={'fmin_perc': np.float64, 'fmax_perc': np.float64,
                                         'f_min': np.float64, 'f_max': np.float64,
-                                        'f_min_prod': np.float64}).drop(
+                                        'f_min_prod': np.float64, 'f_max_prod': np.float64}).drop(
                     columns=['Comment']
                     , errors='ignore')
                 df = clean_indices(df)

@@ -171,6 +171,7 @@ param f_min {REGIONS, TECHNOLOGIES} >= 0; # Minimum feasible installed capacity 
 param fmax_perc {REGIONS, TECHNOLOGIES} >= 0, <= 1 default 1; # value in [0,1]: this is to fix that a technology can at max produce a certain % of the total output of its sector over the entire year
 param fmin_perc {REGIONS, TECHNOLOGIES} >= 0, <= 1 default 0; # value in [0,1]: this is to fix that a technology can at min produce a certain % of the total output of its sector over the entire year
 param f_min_prod {REGIONS, TECHNOLOGIES} >= 0 default 0; # [GWh/y] absolute annual production floor for a technology, independent of any end-use-type assiette. Default 0 = inactive for all existing scenarios. See f_min_prod_abs constraint.
+param f_max_prod {REGIONS, TECHNOLOGIES} >= 0 default 1e15; # [GWh/y] absolute annual production ceiling for a technology, symmetric to f_min_prod. Default 1e15 = inactive for all existing scenarios. See f_max_prod_abs constraint.
 param avail_local {REGIONS, RESOURCES} >= 0; # Yearly availability of resources [GWh/y]
 param avail_exterior {REGIONS, RESOURCES} >= 0;
 param c_op_local {REGIONS, RESOURCES} >= 0; # cost of resources in the different periods [MCHF/GWh]
@@ -850,9 +851,25 @@ subject to f_min_perc {c in REGIONS, eut in END_USES_TYPES, j in TECHNOLOGIES_OF
 # Introduced for frozen-counterfactual scenarios (e.g. reality_access) where fmin_perc's
 # percentage-of-assiette floor is circular: the floor shifts the tech mix, which shifts
 # the assiette, which shifts the floor. f_min_prod defaults to 0, making this inactive
-# for every other scenario.
-subject to f_min_prod_abs {c in REGIONS, eut in END_USES_TYPES, j in TECHNOLOGIES_OF_END_USES_TYPE[eut]}:
+# for every other scenario. Indexing is restricted to f_min_prod[c,j] > 0 (instead of
+# generating a slack row for every {c,eut,j} and relying on the default to neutralise
+# it) because a redundant row with a huge coefficient still perturbs the barrier/simplex
+# path in this already ill-conditioned LP -- see f_max_prod_abs below for the case that
+# exposed it.
+subject to f_min_prod_abs {c in REGIONS, eut in END_USES_TYPES, j in TECHNOLOGIES_OF_END_USES_TYPE[eut]: f_min_prod[c,j] > 0}:
 	sum {t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]} (F_t [c,j,h,td] * t_op[h,td]) >= f_min_prod [c,j];
+
+# Absolute annual production ceiling [GWh/y], symmetric to f_min_prod_abs above.
+# Introduced to stop a technology whose delivered kWh is cheaper than alternatives
+# (e.g. TECH_HS, excluded from network losses at .mod:631) from over-producing beyond
+# what its own end-use demand can justify. Indexing is restricted to f_max_prod[c,j] <
+# 1e14 (well below the 1e15 default) so no row is generated at all for technologies
+# that aren't explicitly capped: a 1e15 coefficient sitting in a matrix whose useful
+# values are O(1-100) degrades conditioning and produced a measurable non-regression
+# in the sufficiency_phase2 A/B test (33.245231 -> 33.239461, new tolerance-violation
+# warning) even though the bound was never binding.
+subject to f_max_prod_abs {c in REGIONS, eut in END_USES_TYPES, j in TECHNOLOGIES_OF_END_USES_TYPE[eut]: f_max_prod[c,j] < 1e14}:
+	sum {t in PERIODS, h in HOUR_OF_PERIOD[t], td in TYPICAL_DAY_OF_PERIOD[t]} (F_t [c,j,h,td] * t_op[h,td]) <= f_max_prod [c,j];
 
 # [Eq. ..] Limit electricity import capacity
 subject to max_elec_import {c in REGIONS, h in HOURS, td in TYPICAL_DAYS}:
