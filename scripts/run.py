@@ -18,7 +18,7 @@ from esmc.common import bo_country_code, CSV_SEPARATOR
 
 # Choose which case to run:
 #   sufficiency / sufficiency_phase2 / reality / reality_phase2 / reality_access
-selected_case = 'reality_access'
+selected_case = 'sufficiency'
 
 year = 2025
 
@@ -64,7 +64,7 @@ save_hourly = ['Resources', 'Exchanges', 'Assets', 'Storage', 'Curt']
 
 # i = 0 regenerates the TD clustering (kmedoid); i = 1 reuses the cache in 00_td_dat/.
 # That cache is shared across scenarios, so regenerate after switching scenario.
-i = 0  # cache on disk is the frozen sufficiency_phase2 TD clustering (run.py:67 prior), not reality_access's own -> regenerate
+i = 0  # regenerate TD clustering for sufficiency (shared cache, must not reuse another scenario's)
 
 for c in cases:
 

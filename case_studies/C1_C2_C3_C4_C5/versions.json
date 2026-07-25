@@ -7,8 +7,8 @@
     },
     "norte_amazonia_reality_2025_phase2": {
         "comment": "none",
-        "commit_name": "Fix CPLEX IIS diagnostic: iisfind must be set before solve()",
-        "datetime": "23/07/2026 22:55:16",
+        "commit_name": "reality + reality_access 2025 ferm\u00e9s : HS_DIESEL cap+floor = demande B, share_dispersion=0, GENSET floors corrig\u00e9s MVA\u2192MW. reality=66.654, reality_access=69.653, tous deux optimal sans avertissement.",
+        "datetime": "25/07/2026 13:04:36",
         "space_id": "C1_C2_C3_C4_C5"
     },
     "norte_amazonia_reality_access_2025": {
@@ -19,8 +19,8 @@
     },
     "norte_amazonia_sufficiency_2025": {
         "comment": "none",
-        "commit_name": "Checkpoint before IIS diagnostic fix: reality_access case study + WIP IIS attempt",
-        "datetime": "21/07/2026 15:58:24",
+        "commit_name": "reality + reality_access 2025 ferm\u00e9s : HS_DIESEL cap+floor = demande B, share_dispersion=0, GENSET floors corrig\u00e9s MVA\u2192MW. reality=66.654, reality_access=69.653, tous deux optimal sans avertissement.",
+        "datetime": "25/07/2026 13:16:54",
         "space_id": "C1_C2_C3_C4_C5"
     },
     "norte_amazonia_sufficiency_2025_phase2": {
