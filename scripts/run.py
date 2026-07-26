@@ -1,7 +1,7 @@
 # Norte Amazónica 2025 — multi-cell run
 # 5 clusters: C1 (Beni/Ixiamas), C2 (Bolpebra), C3 (Riberalta/Guayaramerín/Puerto),
 #             C4 (Central Pando), C5 (Cobija)
-# Scenario selected below (sufficiency / sufficiency_phase2 / reality).
+# Scenario selected below (sufficiency_phase2 / reality).
 # Data folder is chosen automatically from the scenario: Data/2025/<scenario>/
 
 import numpy as np
@@ -17,15 +17,12 @@ from esmc import Esmc
 from esmc.common import bo_country_code, CSV_SEPARATOR
 
 # Choose which case to run:
-#   sufficiency / sufficiency_phase2 / reality / reality_phase2 / reality_access
-selected_case = 'sufficiency'
+#   sufficiency_phase2 / reality / reality_phase2 / reality_access
+selected_case = 'sufficiency_phase2'
 
 year = 2025
 
-if selected_case == 'sufficiency':
-    scenario = 'sufficiency'
-    case_study = f'norte_amazonia_sufficiency_{year}'
-elif selected_case == 'sufficiency_phase2':
+if selected_case == 'sufficiency_phase2':
     scenario = 'sufficiency'
     case_study = f'norte_amazonia_sufficiency_{year}_phase2'
 elif selected_case == 'reality':
@@ -39,7 +36,7 @@ elif selected_case == 'reality_access':
     case_study = f'norte_amazonia_reality_access_{year}'
 else:
     raise ValueError(f"Unknown selected_case '{selected_case}': "
-                     "use 'sufficiency', 'sufficiency_phase2', 'reality', 'reality_phase2' "
+                     "use 'sufficiency_phase2', 'reality', 'reality_phase2' "
                      "or 'reality_access'")
 
 cases = [case_study]
@@ -137,15 +134,7 @@ for c in cases:
                   'HS_DIESEL': 'f_min_HS_DIESEL_MW',
                   'BATT_HS': 'f_min_BATT_HS_MWh'}
 
-    if c == 'norte_amazonia_sufficiency_2025':
-        # phase 1 = greenfield: no dispersed demand, no existing home fleet
-        for r_code, region in my_model.regions.items():
-            region.data['Misc']['share_dispersion'] = 0.0
-            for tech in HOME_TECHS:
-                if tech in region.data['Technologies'].index:
-                    region.data['Technologies'].loc[tech, 'f_min'] = 0.0
-
-    elif c == 'norte_amazonia_sufficiency_2025_phase2':
+    if c == 'norte_amazonia_sufficiency_2025_phase2':
         # phase 2 = brownfield: real 2025 home fleet is a floor (f_min), f_max stays open
         bc = pd.read_csv(my_model.project_dir / 'Data' / str(year) / scenario
                          / 'share_dispersion_final_BC.csv', index_col='Cluster')
