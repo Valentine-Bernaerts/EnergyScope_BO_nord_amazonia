@@ -17,7 +17,7 @@
         "datetime": "25/07/2026 12:28:02",
         "space_id": "C1_C2_C3_C4_C5"
     },
-    "norte_amazonia_sufficiency_2025_phase2": {
+    "norte_amazonia_sufficiency_2025": {
         "comment": "none",
         "commit_name": "Add absolute production floors (f_min_prod) to reality_access, fix GENSET unit bug, recalibrate share_dispersion",
         "datetime": "24/07/2026 16:06:54",

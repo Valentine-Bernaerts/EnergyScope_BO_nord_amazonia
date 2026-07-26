@@ -1,5 +1,11 @@
-# STALE: 'norte_amazonia_sufficiency_2025' (Phase 1) below points to a run archived at
-# case_studies/_archive/norte_amazonia_sufficiency_2025_P1_perime/ and is no longer reproducible from current sources.
+# STALE / DO NOT RUN AS-IS: the `cases` list below predates two renames.
+# - 'norte_amazonia_sufficiency_2025' (line below, meant as "Phase 1") is now a NAME COLLISION:
+#   that path is the live case study (former sufficiency_phase2, renamed - no more Phase 1/2 split).
+#   Running this script would silently operate on the wrong (current) run under Phase-1 assumptions.
+# - 'norte_amazonia_sufficiency_2025_phase2' no longer exists as a path at all (renamed above).
+# The actual archived Phase 1 now lives at
+# case_studies/_archive/norte_amazonia_sufficiency_2025_without_infrastructure/ and is not reproducible
+# from current sources.
 # Re-run Phase 1 and Phase 2 after ST_SNG ghost fix.
 # ST_SNG f_min/f_max set to 0 in all cluster CSVs and both reg_technologies.dat files.
 # Uses algo='read' (existing 16-TD clustering) and skips print_data so that
