@@ -1,3 +1,5 @@
+# STALE: 'norte_amazonia_sufficiency_2025' (Phase 1) below points to a run archived at
+# case_studies/_archive/norte_amazonia_sufficiency_2025_P1_perime/ and is no longer reproducible from current sources.
 # Re-run Phase 1 and Phase 2 after ST_SNG ghost fix.
 # ST_SNG f_min/f_max set to 0 in all cluster CSVs and both reg_technologies.dat files.
 # Uses algo='read' (existing 16-TD clustering) and skips print_data so that

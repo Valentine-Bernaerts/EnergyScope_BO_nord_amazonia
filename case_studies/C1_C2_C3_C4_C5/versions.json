@@ -17,12 +17,6 @@
         "datetime": "25/07/2026 12:28:02",
         "space_id": "C1_C2_C3_C4_C5"
     },
-    "norte_amazonia_sufficiency_2025": {
-        "comment": "none",
-        "commit_name": "reality + reality_access 2025 ferm\u00e9s : HS_DIESEL cap+floor = demande B, share_dispersion=0, GENSET floors corrig\u00e9s MVA\u2192MW. reality=66.654, reality_access=69.653, tous deux optimal sans avertissement.",
-        "datetime": "25/07/2026 13:16:54",
-        "space_id": "C1_C2_C3_C4_C5"
-    },
     "norte_amazonia_sufficiency_2025_phase2": {
         "comment": "none",
         "commit_name": "Add absolute production floors (f_min_prod) to reality_access, fix GENSET unit bug, recalibrate share_dispersion",
