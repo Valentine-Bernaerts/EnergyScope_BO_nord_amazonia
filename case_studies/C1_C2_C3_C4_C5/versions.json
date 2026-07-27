@@ -1,26 +1,26 @@
 {
     "norte_amazonia_reality_2025": {
         "comment": "none",
-        "commit_name": "Add absolute production floors (f_min_prod) to reality_access, fix GENSET unit bug, recalibrate share_dispersion",
-        "datetime": "25/07/2026 10:48:49",
+        "commit_name": "Renomme sufficiency_phase2 -> sufficiency (plus de Phase 1 vivant) ; renomme l'archive P1",
+        "datetime": "27/07/2026 01:23:12",
         "space_id": "C1_C2_C3_C4_C5"
     },
     "norte_amazonia_reality_2025_phase2": {
         "comment": "none",
-        "commit_name": "reality + reality_access 2025 ferm\u00e9s : HS_DIESEL cap+floor = demande B, share_dispersion=0, GENSET floors corrig\u00e9s MVA\u2192MW. reality=66.654, reality_access=69.653, tous deux optimal sans avertissement.",
-        "datetime": "25/07/2026 13:04:36",
+        "commit_name": "Renomme sufficiency_phase2 -> sufficiency (plus de Phase 1 vivant) ; renomme l'archive P1",
+        "datetime": "27/07/2026 01:17:21",
         "space_id": "C1_C2_C3_C4_C5"
     },
     "norte_amazonia_reality_access_2025": {
         "comment": "none",
-        "commit_name": "Add absolute production floors (f_min_prod) to reality_access, fix GENSET unit bug, recalibrate share_dispersion",
-        "datetime": "25/07/2026 12:28:02",
+        "commit_name": "Supprime scripts/rerun_st_sng_fix.py (obsolete, plus r\u00e9f\u00e9renc\u00e9)",
+        "datetime": "27/07/2026 20:53:55",
         "space_id": "C1_C2_C3_C4_C5"
     },
     "norte_amazonia_sufficiency_2025": {
         "comment": "none",
-        "commit_name": "Add absolute production floors (f_min_prod) to reality_access, fix GENSET unit bug, recalibrate share_dispersion",
-        "datetime": "24/07/2026 16:06:54",
+        "commit_name": "Supprime scripts/rerun_st_sng_fix.py (obsolete, plus r\u00e9f\u00e9renc\u00e9)",
+        "datetime": "27/07/2026 22:34:17",
         "space_id": "C1_C2_C3_C4_C5"
     }
 }

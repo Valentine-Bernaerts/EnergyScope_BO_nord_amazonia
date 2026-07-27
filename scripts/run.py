@@ -130,19 +130,21 @@ for c in cases:
 
 
     # off-grid home systems: PV_HS / HS_DIESEL / BATT_HS, set explicitly per phase
-    HOME_TECHS = {'PV_HS': 'f_min_PV_HS_MW',
-                  'HS_DIESEL': 'f_min_HS_DIESEL_MW',
-                  'BATT_HS': 'f_min_BATT_HS_MWh'}
+    # share_dispersion_final_BC.csv stores f_min already in GW/GWh, no unit conversion needed
+    HOME_TECHS = {'PV_HS': 'f_min_PV_HS_GW',
+                  'HS_DIESEL': 'f_min_HS_DIESEL_GW',
+                  'BATT_HS': 'f_min_BATT_HS_GWh'}
 
     if c == 'norte_amazonia_sufficiency_2025':
         # brownfield: real 2025 home fleet is a floor (f_min), f_max stays open
+        # overrides the static Technologies.csv f_min, which is not regenerated when this CSV changes
         bc = pd.read_csv(my_model.project_dir / 'Data' / str(year) / scenario
                          / 'share_dispersion_final_BC.csv', index_col='Cluster')
         for r_code, region in my_model.regions.items():
-            region.data['Misc']['share_dispersion'] = float(bc.loc[r_code, 'share_dispersion_BC'])
+            region.data['Misc']['share_dispersion'] = float(bc.loc[r_code, 'share_dispersion'])
             for tech, col in HOME_TECHS.items():
                 if tech in region.data['Technologies'].index:
-                    region.data['Technologies'].loc[tech, 'f_min'] = float(bc.loc[r_code, col]) / 1000.0
+                    region.data['Technologies'].loc[tech, 'f_min'] = float(bc.loc[r_code, col])
                     region.data['Technologies'].loc[tech, 'f_max'] = 1e15
 
     # --- Reality: dispatch of the real 2025 system (both reality phases) ---
@@ -207,7 +209,22 @@ for c in cases:
     my_model.print_td_data()
     my_model.print_data(indep=True)
 
-    if c in ('norte_amazonia_reality_2025', 'norte_amazonia_reality_2025_phase2',
+    if c == 'norte_amazonia_sufficiency_2025':
+        # same defaults as set_esom's implicit ampl_options, log kept outside the repo cwd
+        suff_cplex = ['baropt', 'predual=-1', 'barstart=4', 'comptol=1e-4', 'crossover=0',
+                      'timelimit 172800', 'bardisplay=1', 'display=2']
+        suff_log_dir = my_model.project_dir.parent / 'run_logs'
+        suff_log_dir.mkdir(parents=True, exist_ok=True)
+        suff_ampl_options = {
+            'show_stats': 3,
+            'log_file': str(suff_log_dir / f'{c}_log.txt'),
+            'presolve': 200,
+            'times': 1,
+            'gentimes': 1,
+            'cplex_options': ' '.join(suff_cplex),
+        }
+        my_model.set_esom(ampl_path=ampl_path, ampl_options=suff_ampl_options)
+    elif c in ('norte_amazonia_reality_2025', 'norte_amazonia_reality_2025_phase2',
              'norte_amazonia_reality_access_2025'):
         # brownfield lock-down shrinks the LP to ~400K vars after presolve;
         # dual simplex (no baropt) avoids barrier degeneracy on the tightly-fixed constraints
