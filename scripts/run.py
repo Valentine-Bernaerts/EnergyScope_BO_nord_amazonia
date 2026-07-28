@@ -17,8 +17,8 @@ from esmc import Esmc
 from esmc.common import bo_country_code, CSV_SEPARATOR
 
 # Choose which case to run:
-#   sufficiency / reality / reality_phase2 / reality_access
-selected_case = 'sufficiency'
+#   sufficiency / reality / reality_phase2 / reality_access / access_transition
+selected_case = 'access_transition'
 
 year = 2025
 
@@ -34,10 +34,13 @@ elif selected_case == 'reality_phase2':
 elif selected_case == 'reality_access':
     scenario = 'reality_access'
     case_study = f'norte_amazonia_reality_access_{year}'
+elif selected_case == 'access_transition':
+    scenario = 'reality_access'
+    case_study = f'norte_amazonia_access_transition_{year}'
 else:
     raise ValueError(f"Unknown selected_case '{selected_case}': "
-                     "use 'sufficiency', 'reality', 'reality_phase2' "
-                     "or 'reality_access'")
+                     "use 'sufficiency', 'reality', 'reality_phase2', "
+                     "'reality_access' or 'access_transition'")
 
 cases = [case_study]
 
@@ -183,6 +186,29 @@ for c in cases:
             if 'ELECTRICITY' in my_model.regions['C1'].data['Resources'].index:
                 my_model.regions['C1'].data['Resources'].loc['ELECTRICITY', 'avail_exterior'] = 1e6
 
+    # --- Access transition: reality_access system + supply-side unlock (Step 2 of the 4-step decomposition) ---
+    if c == f'norte_amazonia_access_transition_{year}':
+        for r_code, region in my_model.regions.items():
+            region.data['Technologies'].loc['PV_UTILITY', 'f_max'] = 1e15
+            region.data['Technologies'].loc['BATT_LI', 'f_max'] = 1e15
+
+        # zero the frozen-counterfactual f_min_prod floors that lock in Source A's 2025 diesel/gas fleet
+        f_min_prod_zero = {'GENSET_DIESEL': ['C3', 'C4', 'C5'],
+                            'DEC_BOILER_GAS': ['C2', 'C3', 'C4', 'C5'],
+                            'DEC_DIRECT_ELEC': ['C1', 'C3', 'C5']}
+        for tech, r_codes in f_min_prod_zero.items():
+            for r_code in r_codes:
+                region = my_model.regions[r_code]
+                region.data['Technologies'].loc[tech, 'f_min_prod'] = 0.0
+
+        # duplicate of the reality_access guard above (kept out of the line-151 tuple, which is reality-specific)
+        for r_code, region in my_model.regions.items():
+            if 'DIESEL' in region.data['Resources'].index:
+                region.data['Resources'].loc['DIESEL', 'avail_exterior'] = 1e6
+        if 'C1' in my_model.regions:
+            if 'ELECTRICITY' in my_model.regions['C1'].data['Resources'].index:
+                my_model.regions['C1'].data['Resources'].loc['ELECTRICITY', 'avail_exterior'] = 1e6
+
     # for near-optimal space exploration with epsilon optimality
     if 'epsilon' in c:
         my_model.data_indep['Misc_indep']['total_cost_optimum'] = obj
@@ -225,7 +251,7 @@ for c in cases:
         }
         my_model.set_esom(ampl_path=ampl_path, ampl_options=suff_ampl_options)
     elif c in ('norte_amazonia_reality_2025', 'norte_amazonia_reality_2025_phase2',
-             'norte_amazonia_reality_access_2025'):
+             'norte_amazonia_reality_access_2025', 'norte_amazonia_access_transition_2025'):
         # brownfield lock-down shrinks the LP to ~400K vars after presolve;
         # dual simplex (no baropt) avoids barrier degeneracy on the tightly-fixed constraints
         reality_cplex = ['timelimit 172800', 'display=2']

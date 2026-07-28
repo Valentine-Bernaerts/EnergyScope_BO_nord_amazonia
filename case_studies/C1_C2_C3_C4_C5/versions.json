@@ -1,4 +1,10 @@
 {
+    "norte_amazonia_access_transition_2025": {
+        "comment": "none",
+        "commit_name": "Cl\u00f4ture 2025 : reality 66.648, reality_phase2 42.286, reality_access 69.734, sufficiency 31.850, tous CPLEX-optimal. Corrections TD, share_dispersion access, plafond HS_DIESEL, plancher PV_HS C2, \u00e9clairage sufficiency 100% LED.",
+        "datetime": "28/07/2026 16:14:23",
+        "space_id": "C1_C2_C3_C4_C5"
+    },
     "norte_amazonia_reality_2025": {
         "comment": "none",
         "commit_name": "Renomme sufficiency_phase2 -> sufficiency (plus de Phase 1 vivant) ; renomme l'archive P1",
