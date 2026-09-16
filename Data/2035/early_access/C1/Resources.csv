@@ -1,0 +1,12 @@
+;avail_local;avail_exterior;gwp_op_local;c_op_local;Comment
+WOOD;26.065896;0.0;0.0118;0.016981;
+BIOMASS_RESIDUES;101.231438;0.0;0.0118;0.010318;
+WASTE;0.0;0.0;0.1501;0.021188;
+ELECTRICITY;0.0;86;0.412971;0.063732;avail_exterior = ~2x projected total end-use demand (43.19 GWh), not a consumption cap. C1 has no local generation floor (GENSET_DIESEL.f_min=0, PV_UTILITY.f_min=0, both optional) and is served entirely via SIN, same logic as 2025 reality leaving C1 uncapped (run.py:198). Source A projected demand: 25.43 GWh (descriptive only, not a constraint).
+GAS;0.0;0.0;0.2666;0.003808;
+GASOLINE;0.0;1000000.0;0.3448;0.05348;
+DIESEL;0.0;3.57;0.3148;0.04663;
+LFO;0.0;1.0;0.3115;0.035454;
+LPG;0.0;1000000.0;0.283609;0.021579;
+LNG;0.0;1.0;0.2666;0.010663;
+JET_FUEL;0.0;1.0;0.3115;0.035454;

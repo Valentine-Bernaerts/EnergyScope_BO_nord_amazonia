@@ -1,0 +1,14 @@
+{
+    "norte_amazonia_reality_access_2025_sens_decsolar0": {
+        "comment": "DEC_SOLAR f_max = 0, current reference configuration",
+        "commit_name": "add projection",
+        "datetime": "18/08/2026 03:37:49",
+        "space_id": "C1_C2_C3_C4_C5"
+    },
+    "norte_amazonia_sufficiency_2025_sens_decsolar0": {
+        "comment": "DEC_SOLAR f_max = 0, current reference configuration",
+        "commit_name": "add projection",
+        "datetime": "17/08/2026 22:33:57",
+        "space_id": "C1_C2_C3_C4_C5"
+    }
+}

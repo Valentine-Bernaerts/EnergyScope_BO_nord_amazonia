@@ -1,0 +1,26 @@
+name: energyscope
+
+# Versions are those the committed results and notebook outputs were produced with.
+# Solving the model also requires AMPL and the CPLEX solver, which are not installable
+# from conda: both need a licence (free academic licences exist).
+
+channels:
+  - conda-forge
+  - defaults
+
+dependencies:
+  - python=3.13
+  - numpy=2.3.5
+  - pandas=2.3.3
+  - scikit-learn=1.7.2
+  - matplotlib=3.10.6
+  - seaborn=0.13.2
+  - plotly=6.3.0
+  - gitpython=3.1.45
+  - setuptools_scm
+  # to run the analysis notebooks
+  - ipykernel=6.31.0
+  - nbconvert=7.16.6
+  - pip
+  - pip:
+      - amplpy==0.16.0

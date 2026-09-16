@@ -1,0 +1,6 @@
+Cluster,share_dispersion,extension_capex_EUR,N_connectable,N_dispersed,f_min_PV_HS_GW,f_min_HS_DIESEL_GW,f_min_BATT_HS_GWh,share_dispersion_valeur_csv_precedente
+C1,0.0142,51590395.0,144,20,3.6e-06,1.335e-05,8.85e-06,0.166
+C2,0.0,3797317.0,16,0,0.0,0.0,0.0,0.1487
+C3,0.0023,19894197.0,150,10,8.4e-07,5.78e-06,2.07e-06,0.0179
+C4,0.0124,42457033.0,302,41,4.9e-07,2.407e-05,1.2e-06,0.0774
+C5,0.0,157242.0,14,0,0.0,0.0,0.0,0.0

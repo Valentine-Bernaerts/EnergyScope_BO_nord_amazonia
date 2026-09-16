@@ -1,0 +1,116 @@
+{
+    "norte_amazonia_access_transition_2025": {
+        "comment": "none",
+        "commit_name": "add projection",
+        "datetime": "18/08/2026 02:22:45",
+        "space_id": "C1_C2_C3_C4_C5"
+    },
+    "norte_amazonia_early_access_2035": {
+        "comment": "none",
+        "commit_name": "add projection",
+        "datetime": "18/08/2026 17:44:12",
+        "space_id": "C1_C2_C3_C4_C5"
+    },
+    "norte_amazonia_early_access_2050": {
+        "comment": "none",
+        "commit_name": "add projection",
+        "datetime": "18/08/2026 18:44:50",
+        "space_id": "C1_C2_C3_C4_C5"
+    },
+    "norte_amazonia_early_access_2050_sens_nodecsolar": {
+        "comment": "none",
+        "commit_name": "add projection",
+        "datetime": "18/08/2026 19:25:28",
+        "space_id": "C1_C2_C3_C4_C5"
+    },
+    "norte_amazonia_early_access_brazil_2050": {
+        "comment": "none",
+        "commit_name": "add projection",
+        "datetime": "18/08/2026 19:17:31",
+        "space_id": "C1_C2_C3_C4_C5"
+    },
+    "norte_amazonia_early_access_brazil_2050_sens_price003": {
+        "comment": "none",
+        "commit_name": "add projection",
+        "datetime": "18/08/2026 19:56:00",
+        "space_id": "C1_C2_C3_C4_C5"
+    },
+    "norte_amazonia_early_access_brazil_2050_sens_price009": {
+        "comment": "none",
+        "commit_name": "add projection",
+        "datetime": "18/08/2026 20:03:16",
+        "space_id": "C1_C2_C3_C4_C5"
+    },
+    "norte_amazonia_early_access_brazil_2050_sens_vol1857": {
+        "comment": "none",
+        "commit_name": "add projection",
+        "datetime": "18/08/2026 20:18:15",
+        "space_id": "C1_C2_C3_C4_C5"
+    },
+    "norte_amazonia_early_access_brazil_2050_sens_vol923": {
+        "comment": "none",
+        "commit_name": "add projection",
+        "datetime": "18/08/2026 20:10:07",
+        "space_id": "C1_C2_C3_C4_C5"
+    },
+    "norte_amazonia_late_access_2035": {
+        "comment": "none",
+        "commit_name": "add projection",
+        "datetime": "18/08/2026 18:04:53",
+        "space_id": "C1_C2_C3_C4_C5"
+    },
+    "norte_amazonia_late_access_2050": {
+        "comment": "none",
+        "commit_name": "add projection",
+        "datetime": "18/08/2026 18:56:18",
+        "space_id": "C1_C2_C3_C4_C5"
+    },
+    "norte_amazonia_late_access_2050_sens_battom": {
+        "comment": "none",
+        "commit_name": "add projection",
+        "datetime": "18/08/2026 19:44:16",
+        "space_id": "C1_C2_C3_C4_C5"
+    },
+    "norte_amazonia_late_access_2050_sens_nodecsolar": {
+        "comment": "none",
+        "commit_name": "add projection",
+        "datetime": "18/08/2026 19:33:05",
+        "space_id": "C1_C2_C3_C4_C5"
+    },
+    "norte_amazonia_no_transition_2035": {
+        "comment": "none",
+        "commit_name": "add projection",
+        "datetime": "18/08/2026 17:29:30",
+        "space_id": "C1_C2_C3_C4_C5"
+    },
+    "norte_amazonia_no_transition_2050": {
+        "comment": "none",
+        "commit_name": "add projection",
+        "datetime": "18/08/2026 18:38:08",
+        "space_id": "C1_C2_C3_C4_C5"
+    },
+    "norte_amazonia_no_transition_2050_sens_diesel20": {
+        "comment": "none",
+        "commit_name": "add projection",
+        "datetime": "18/08/2026 20:28:18",
+        "space_id": "C1_C2_C3_C4_C5"
+    },
+    "norte_amazonia_reality_2025": {
+        "comment": "none",
+        "commit_name": "add projection",
+        "datetime": "18/08/2026 01:51:22",
+        "space_id": "C1_C2_C3_C4_C5"
+    },
+    "norte_amazonia_reality_2025_phase2": {
+        "comment": "none",
+        "commit_name": "add projection",
+        "datetime": "18/08/2026 02:01:44",
+        "space_id": "C1_C2_C3_C4_C5"
+    },
+    "norte_amazonia_reality_access_2025": {
+        "comment": "none",
+        "commit_name": "add projection",
+        "datetime": "18/08/2026 02:41:51",
+        "space_id": "C1_C2_C3_C4_C5"
+    }
+}
