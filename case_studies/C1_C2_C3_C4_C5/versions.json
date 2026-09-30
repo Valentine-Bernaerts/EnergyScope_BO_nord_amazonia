@@ -13,8 +13,8 @@
     },
     "norte_amazonia_early_access_2050": {
         "comment": "none",
-        "commit_name": "add projection",
-        "datetime": "18/08/2026 18:44:50",
+        "commit_name": "EnergyScope BNA: model, data and analysis notebooks for the master's thesis",
+        "datetime": "28/09/2026 13:33:59",
         "space_id": "C1_C2_C3_C4_C5"
     },
     "norte_amazonia_early_access_2050_sens_nodecsolar": {
@@ -25,8 +25,8 @@
     },
     "norte_amazonia_early_access_brazil_2050": {
         "comment": "none",
-        "commit_name": "add projection",
-        "datetime": "18/08/2026 19:17:31",
+        "commit_name": "EnergyScope BNA: model, data and analysis notebooks for the master's thesis",
+        "datetime": "28/09/2026 16:00:01",
         "space_id": "C1_C2_C3_C4_C5"
     },
     "norte_amazonia_early_access_brazil_2050_sens_price003": {
@@ -67,8 +67,8 @@
     },
     "norte_amazonia_late_access_2050_sens_battom": {
         "comment": "none",
-        "commit_name": "add projection",
-        "datetime": "18/08/2026 19:44:16",
+        "commit_name": "EnergyScope BNA: model, data and analysis notebooks for the master's thesis",
+        "datetime": "28/09/2026 15:00:36",
         "space_id": "C1_C2_C3_C4_C5"
     },
     "norte_amazonia_late_access_2050_sens_nodecsolar": {
@@ -97,20 +97,26 @@
     },
     "norte_amazonia_reality_2025": {
         "comment": "none",
-        "commit_name": "add projection",
-        "datetime": "18/08/2026 01:51:22",
+        "commit_name": "EnergyScope BNA: model, data and analysis notebooks for the master's thesis",
+        "datetime": "28/09/2026 13:17:45",
         "space_id": "C1_C2_C3_C4_C5"
     },
     "norte_amazonia_reality_2025_phase2": {
         "comment": "none",
-        "commit_name": "add projection",
-        "datetime": "18/08/2026 02:01:44",
+        "commit_name": "EnergyScope BNA: model, data and analysis notebooks for the master's thesis",
+        "datetime": "28/09/2026 13:58:41",
         "space_id": "C1_C2_C3_C4_C5"
     },
     "norte_amazonia_reality_access_2025": {
         "comment": "none",
         "commit_name": "add projection",
         "datetime": "18/08/2026 02:41:51",
+        "space_id": "C1_C2_C3_C4_C5"
+    },
+    "norte_amazonia_sufficiency_2025": {
+        "comment": "none",
+        "commit_name": "EnergyScope BNA: model, data and analysis notebooks for the master's thesis",
+        "datetime": "28/09/2026 13:49:49",
         "space_id": "C1_C2_C3_C4_C5"
     }
 }
